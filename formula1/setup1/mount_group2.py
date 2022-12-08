@@ -37,3 +37,12 @@ dbutils.fs.ls("/mnt/formulagroup2/raw")
 # COMMAND ----------
 
 dbutils.fs.ls("/mnt/formulagroup2/processed")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### added git integration
+
+# COMMAND ----------
+
+
