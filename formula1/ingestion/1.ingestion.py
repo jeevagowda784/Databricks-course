@@ -74,30 +74,6 @@ circuits_df.printSchema()
 
 # COMMAND ----------
 
-circuits_selected_df = circuits_df.select("circuitId","circuitRef","name","location","country","lat","lng","alt")
-
-# COMMAND ----------
-
-display(circuits_selected_df)
-
-# COMMAND ----------
-
-circuits_selected_df = circuits_df.select(circuits_df.circuitId,circuits_df.circuitRef,circuits_df.name,circuits_df.location,circuits_df.country,circuits_df.lat,circuits_df.lng,circuits_df.alt)
-
-# COMMAND ----------
-
-display(circuits_selected_df)
-
-# COMMAND ----------
-
-circuits_selected_df = circuits_df.select(circuits_df["circuitId"],circuits_df["circuitRef"],circuits_df["name"],circuits_df["location"],circuits_df["country"],circuits_df["lat"],circuits_df["lng"],circuits_df["alt"])
-
-# COMMAND ----------
-
-display(circuits_selected_df)
-
-# COMMAND ----------
-
 from pyspark.sql.functions import col
 
 # COMMAND ----------
@@ -106,7 +82,55 @@ circuits_selected_df = circuits_df.select(col("circuitId"),col("circuitRef"),col
 
 # COMMAND ----------
 
-display(circuits_selected_df)
+# MAGIC %md
+# MAGIC ####Rename the  columns ####
+
+# COMMAND ----------
+
+circuits_renamed_df=circuits_selected_df.withColumnRenamed("circuitId","circuit_id")\
+.withColumnRenamed("circuitRef","circuit_Ref")\
+.withColumnRenamed("lat","latitude")\
+.withColumnRenamed("lng","longitude")\
+.withColumnRenamed("alt","altitude")
+
+# COMMAND ----------
+
+display(circuits_renamed_df)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##Adding new column ingested data column##
+
+# COMMAND ----------
+
+from pyspark.sql.functions import current_timestamp
+
+# COMMAND ----------
+
+circuits_final_df=circuits_renamed_df.withColumn("ingestion_date",current_timestamp())
+
+# COMMAND ----------
+
+display(circuits_final_df)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##adding  literal value to each record ##
+
+# COMMAND ----------
+
+from pyspark.sql.functions import current_timestamp,lit
+
+# COMMAND ----------
+
+circuits_final_df=circuits_renamed_df.withColumn("ingestion_date",current_timestamp())\
+.withColumn("env",lit("Production"))
+
+# COMMAND ----------
+
+display(circuits_final_df)
 
 # COMMAND ----------
 
