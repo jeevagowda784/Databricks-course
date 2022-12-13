@@ -4,39 +4,27 @@
 
 # COMMAND ----------
 
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC step-1 Read the CSV file using spark Data frame reader
 
 # COMMAND ----------
 
-circuits_df=spark.read.option("header",True).csv("dbfs:/mnt/formulagroup2/raw/circuits.csv")
-
-# COMMAND ----------
-
-type(circuits_df)
-
-# COMMAND ----------
-
-display(circuits_df)
-
-# COMMAND ----------
-
-circuits_df.printSchema()
-
-# COMMAND ----------
-
-circuits_df.describe().show()
+circuits_df=spark.read.option("header",True).csv(f"{raw_folder_path}/circuits.csv")
 
 # COMMAND ----------
 
 circuits_df=spark.read\
 .option("header",True)\
 .option("inferSchema",True)\
-.csv("/mnt/formulagroup2/raw/circuits.csv")
-
-# COMMAND ----------
-
-circuits_df.printSchema()
+.csv(f"{raw_folder_path}/circuits.csv")
 
 # COMMAND ----------
 
@@ -61,11 +49,7 @@ circuits_schema=StructType(fields=[StructField("circuitId",IntegerType(),False),
 circuits_df=spark.read\
 .option("header",True)\
 .schema(circuits_schema)\
-.csv("dbfs:/mnt/formulagroup2/raw/circuits.csv")
-
-# COMMAND ----------
-
-circuits_df.printSchema()
+.csv(f"{raw_folder_path}/circuits.csv")
 
 # COMMAND ----------
 
@@ -95,24 +79,12 @@ circuits_renamed_df=circuits_selected_df.withColumnRenamed("circuitId","circuit_
 
 # COMMAND ----------
 
-display(circuits_renamed_df)
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC ##Adding new column ingested data column##
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp
-
-# COMMAND ----------
-
-circuits_final_df=circuits_renamed_df.withColumn("ingestion_date",current_timestamp())
-
-# COMMAND ----------
-
-display(circuits_final_df)
+circuits_final_df= add_ingestion_date(circuits_renamed_df)
 
 # COMMAND ----------
 
@@ -121,20 +93,7 @@ display(circuits_final_df)
 
 # COMMAND ----------
 
-circuits_final_df.write.mode("overwrite").parquet("/mnt/formula1/processed/circuits")
-
-# COMMAND ----------
-
-# MAGIC %fs
-# MAGIC ls /mnt/formula1/processed/circuits
-
-# COMMAND ----------
-
-df = spark.read.parquet("/mnt/formula1/processed/circuits")
-
-# COMMAND ----------
-
-display(df)
+circuits_final_df.write.mode("overwrite").parquet(f"{processed_folder_path}/circuits")
 
 # COMMAND ----------
 
