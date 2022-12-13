@@ -32,7 +32,7 @@ circuits_df.describe().show()
 circuits_df=spark.read\
 .option("header",True)\
 .option("inferSchema",True)\
-.csv("dbfs:/mnt/formulagroup2/raw/circuits.csv")
+.csv("/mnt/formulagroup2/raw/circuits.csv")
 
 # COMMAND ----------
 
@@ -117,20 +117,24 @@ display(circuits_final_df)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##adding  literal value to each record ##
+# MAGIC ## Write data to datalake in parquet##
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp,lit
+circuits_final_df.write.mode("overwrite").parquet("/mnt/formula1/processed/circuits")
 
 # COMMAND ----------
 
-circuits_final_df=circuits_renamed_df.withColumn("ingestion_date",current_timestamp())\
-.withColumn("env",lit("Production"))
+# MAGIC %fs
+# MAGIC ls /mnt/formula1/processed/circuits
 
 # COMMAND ----------
 
-display(circuits_final_df)
+df = spark.read.parquet("/mnt/formula1/processed/circuits")
+
+# COMMAND ----------
+
+display(df)
 
 # COMMAND ----------
 
