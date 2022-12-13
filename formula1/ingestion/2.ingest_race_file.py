@@ -4,7 +4,15 @@
 
 # COMMAND ----------
 
-races_df = spark.read.option("header",True).option("inferSchema",True).csv("dbfs:/mnt/formulagroup2/raw/races.csv")
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
+races_df = spark.read.option("header",True).option("inferSchema",True).csv(f"{raw_folder_path}/races.csv")
 
 # COMMAND ----------
 
@@ -28,15 +36,15 @@ races_schema = StructType(fields=[StructField("raceId",IntegerType(),False),
 
 # COMMAND ----------
 
-races_df= spark.read.option("header",True).schema(races_schema).csv("dbfs:/mnt/formulagroup2/raw/races.csv")
+races_df= spark.read.option("header",True).schema(races_schema).csv(f"{raw_folder_path}/races.csv")
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp,concat,col,lit,to_timestamp
+from pyspark.sql.functions import to_timestamp,concat,col,lit
 
 # COMMAND ----------
 
-races_with_timestamp_df = races_df.withColumn("ingestion_date",current_timestamp())\
+races_with_timestamp_df = add_ingestion_date(races_df)\
                                    .withColumn("race_timestamp",to_timestamp(concat(col('date'),lit(' '),col('time')),'yyyy-MM-dd HH:mm:ss'))
 
 
@@ -51,7 +59,11 @@ races_selected_df = races_with_timestamp_df.select(col('raceId').alias('race_Id'
 
 # COMMAND ----------
 
-races_final_df = races_selected_df.write.mode('overwrite').parquet('/mnt/formulagroup2/processed/races')
+races_final_df = races_selected_df.write.mode('overwrite').parquet(f'{processed_folder_path}/races')
+
+# COMMAND ----------
+
+display(spark.read.parquet("/mnt/formulagroup2/processed/races"))
 
 # COMMAND ----------
 
