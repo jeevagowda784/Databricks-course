@@ -32,11 +32,19 @@ mountadls("processed")
 
 # COMMAND ----------
 
+mountadls("presentation")
+
+# COMMAND ----------
+
 dbutils.fs.ls("/mnt/formulagroup2/raw")
 
 # COMMAND ----------
 
 dbutils.fs.ls("/mnt/formulagroup2/processed")
+
+# COMMAND ----------
+
+dbutils.fs.ls("/mnt/formulagroup2/presentation")
 
 # COMMAND ----------
 

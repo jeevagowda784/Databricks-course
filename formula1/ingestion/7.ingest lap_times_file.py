@@ -4,6 +4,19 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_sorce","")
+v_data_source = dbutils.widgets.get("p_data_sorce")
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 from pyspark.sql.types import StructType,StructField,IntegerType,StringType
 
 # COMMAND ----------
@@ -20,22 +33,23 @@ lap_times_schema  = StructType(fields=[StructField("raceId",IntegerType(),False)
 
 lap_times_df = spark.read\
 .schema(lap_times_schema)\
-.csv("/mnt/formulagroup2/raw/lap_times")
+.csv(f"{raw_folder_path}/lap_times")
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp
+from pyspark.sql.functions import current_timestamp,lit
 
 # COMMAND ----------
 
-final_df = lap_times_df.withColumnRenamed("driverId","driver_id")\
+final_df = add_ingestion_date(lap_times_df.withColumnRenamed("driverId","driver_id")\
                        .withColumnRenamed("raceId","race_id")\
-                       .withColumn("ingestion_date",current_timestamp())
+                       .withColumn("p_data_source",lit(v_data_source)))
+                       
 
 # COMMAND ----------
 
-final_df.write.mode("overwrite").parquet("/mnt/formulagroup2/processed/lap_times")
+final_df.write.mode("overwrite").parquet(f"{processed_folder_path}/lap_times")
 
 # COMMAND ----------
 
-
+dbutils.notebook.exit("Success")
